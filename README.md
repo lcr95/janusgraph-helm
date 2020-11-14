@@ -1,0 +1,1 @@
+A demo helm chart to create Janusgraph cluster which use Cassandra and ElasticSearch
