@@ -1,0 +1,9 @@
+dependencies:
+- name: cassandra
+  version: 5.6.1
+  repository: "https://charts.bitnami.com/bitnami"
+  alias: cassandra
+- name: elasticsearch
+  version: 12.6.1
+  repository: "https://charts.bitnami.com/bitnami"
+  alias: elasticsearch

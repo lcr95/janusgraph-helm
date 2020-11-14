@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: janusgraph
+  name: janusgraph
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: janusgraph
+  template:
+    metadata:
+      labels:
+        app: janusgraph
+    spec:
+      initContainers:
+      - name: check-elasticsearch
+        image: busybox
+        command: ['sh', '-c', 'until [ "$(wget -q -O - janusgraph-helm-elasticsearch-master:9200/_cat/nodes | wc -l)" = "{{ add .Values.elasticsearch.master.replicas .Values.elasticsearch.coordinating.replicas .Values.elasticsearch.data.replicas }}" ];
+                  do echo "Waiting for Elasticsearch cluster..."; sleep 10; done;
+                  echo "Elasticsearch cluster is ready, launching JanusGraph Server..."']
+      containers:
+      - image: janusgraph/janusgraph:0.5.2
+        name: janusgraph
+        env:
+          - name: JANUS_PROPS_TEMPLATE
+            value: cql-es
+          - name: janusgraph.storage.hostname
+            value: janusgraph-helm-cassandra
+          - name: janusgraph.storage.username
+            value: cassandra
+          - name: janusgraph.storage.password
+            value: password
+          - name: janusgraph.index.search.hostname
+            value: janusgraph-helm-elasticsearch-master
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: janusgraph
+  name: janusgraph
+spec:
+  ports:
+  - port: 8182
+    name: janusgraph
+    protocol: TCP
+    targetPort: 8182
+  selector:
+    app: janusgraph
+  type: ClusterIP

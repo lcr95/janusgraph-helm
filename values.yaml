@@ -1,0 +1,13 @@
+global:
+  storageClass: hostpath
+cassandra:
+  dbUser:
+    user: cassandra
+    password: password
+elasticsearch:
+  master:
+    replicas: 1
+  coordinating:
+    replicas: 1
+  data:
+    replicas: 1
